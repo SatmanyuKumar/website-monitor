@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BSEB Website Monitor</title>
+</head>
+<body>
+  <h1>Monitoring https://bsebstet.org/</h1>
+  <p>Status: <span id="status">Checking...</span></p>
+
+  <script>
+    Notification.requestPermission();
+
+    function notify(msg) {
+      if (Notification.permission === "granted") {
+        new Notification(msg);
+      } else {
+        alert(msg);
+      }
+    }
+
+    async function checkPage() {
+      try {
+        const res = await fetch("/api/check");
+        const data = await res.text();
+
+        document.getElementById("status").innerText = data;
+
+        if (data === "changed") {
+          notify("⚠️ BSEB STET website updated!");
+          location.reload();
+        }
+
+      } catch (e) {
+        document.getElementById("status").innerText = "Error contacting server";
+      }
+    }
+
+    // Check every 1 minute
+    setInterval(checkPage, 60000);
+
+    // First check immediately
+    checkPage();
+  </script>
+</body>
+</html>
